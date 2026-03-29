@@ -1,0 +1,295 @@
+:root {
+  --bg: #f5f6fa;
+  --white: #fff;
+  --primary: #6d28d9;
+  --secondary: #9333ea;
+  --text-dark: #2d3436;
+  --text-light: #636e72;
+  --border: #e0e0e0;
+  --radius: 16px;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --transition: all 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* ---------- LAYOUT ---------- */
+
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin-top: 30px;
+  margin-bottom: 12px;
+}
+
+p {
+  color: var(--text-light);
+}
+
+/* ---------- INPUTS ---------- */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.filters label {
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.filters input[type="date"] {
+  margin-left: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  background: #fff;
+  transition: var(--transition);
+}
+
+.filters input[type="date"]:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.filters button {
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.filters button:hover {
+  background-color: var(--secondary);
+}
+
+.filters button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------- CARDS ---------- */
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  background-color: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  transition: var(--transition);
+}
+
+.kpi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.kpi-title {
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.kpi-value {
+  font-size: 1.7rem;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
+.kpi-sub {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+/* ---------- BALANCE SECTION ---------- */
+
+.balance-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.balance-divider {
+  border-top: 1px solid var(--border);
+  margin: 10px 0;
+}
+
+/* ---------- ERROR BOX ---------- */
+
+.error-box {
+  background-color: #ffeaea;
+  border: 1px solid #f5c2c7;
+  color: #b02a37;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+/* ---------- CHART & STATS ---------- */
+
+/* Contenedor del gráfico: padre del ResponsiveContainer */
+.chart-container {
+  width: 100%;
+  height: 320px;
+  border-radius: var(--radius);
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}
+
+/* Tooltip del gráfico */
+.chart-tooltip {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.chart-tooltip__title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.chart-tooltip__item {
+  margin: 0;
+}
+
+/* Sección de estadísticas (comparativa por sucursal) */
+.stats-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.stats-header {
+  display: flex;
+  flex-wrap: wrap; /* importante para que salte de línea */
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.stats-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.metric-toggle,
+.charttype-toggle {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.15rem;
+  background: #e5e7eb;
+}
+
+.metric-toggle button,
+.charttype-toggle button {
+  border: none;
+  background: transparent;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.metric-toggle button.active,
+.charttype-toggle button.active {
+  background: #111827;
+  color: #ffffff;
+}
+
+.metric-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+/* Filtros en columna en mobile */
+@media (max-width: 600px) {
+  .filters {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Tablets / pantallas medias */
+@media (max-width: 900px) {
+  .chart-container {
+    height: 280px;
+  }
+}
+
+/* Celulares / pantallas chicas */
+@media (max-width: 768px) {
+  .stats-header {
+    flex-direction: column;  /* título arriba, controles abajo */
+    align-items: flex-start;
+  }
+
+  .stats-header-controls {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .metric-toggle,
+  .charttype-toggle {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .metric-toggle button,
+  .charttype-toggle button {
+    flex: 1;
+    text-align: center;
+  }
+
+  .chart-container {
+    height: 260px;  /* un poquito más bajo en celu */
+  }
+}

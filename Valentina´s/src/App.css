@@ -1,0 +1,223 @@
+body {
+  background-color: #f3f5fa;
+  font-family: "Segoe UI", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard {
+  max-width: 800px;
+  margin: 3rem auto;
+  background: white;
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.range {
+  text-align: center;
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+.auto {
+  color: #007bff;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background-color: #fafafa;
+  border: 1px solid #ddd;
+  padding: 1.2rem;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card h2 {
+  color: #222;
+  margin-bottom: 0.8rem;
+}
+
+.numbers p {
+  font-size: 1rem;
+  margin: 0.3rem 0;
+  color: #444;
+}
+
+.numbers span {
+  font-weight: 600;
+}
+
+.total {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 2px solid #ccc;
+  text-align: center;
+}
+
+.total h2 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.positivo {
+  color: #059669;
+  font-weight: 600;
+}
+
+.negativo {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.loading, .error {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-top: 4rem;
+}
+.error {
+  color: #dc2626;
+}
+.chart-container {
+  margin-top: 3rem;
+    background: #fafafa;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.stats-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.stats-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.stats-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.metric-toggle,
+.charttype-toggle {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.15rem;
+  background: #e5e7eb;
+}
+
+.metric-toggle button,
+.charttype-toggle button {
+  border: none;
+  background: transparent;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.metric-toggle button.active,
+.charttype-toggle button.active {
+  background: #111827;
+  color: #ffffff;
+}
+
+.metric-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+.chart-container {
+  margin-top: 1.5rem;
+  background: #fafafa;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  height: 320px;
+}
+
+/* ---------- RESPONSIVE EXTRA ---------- */
+
+/* Tablets / pantallas medias */
+@media (max-width: 900px) {
+  .container {
+    margin: 20px auto;
+    padding: 0 12px;
+  }
+
+  h1 {
+    font-size: 1.6rem;
+  }
+
+  .kpi-grid {
+    gap: 12px;
+  }
+
+  .chart-container {
+    height: 280px;
+  }
+}
+
+/* Celulares / pantallas chicas */
+@media (max-width: 768px) {
+  .stats-header {
+    flex-direction: column;        /* título arriba, controles abajo */
+    align-items: flex-start;
+  }
+
+  .stats-header-controls {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .metric-toggle,
+  .charttype-toggle {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .metric-toggle button,
+  .charttype-toggle button {
+    flex: 1;
+    text-align: center;
+  }
+
+  .chart-container {
+    height: 260px;  /* un poco más bajito para móvil */
+  }
+}
+/* ---------- END RESPONSIVE EXTRA ---------- */
