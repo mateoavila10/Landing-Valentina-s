@@ -2,22 +2,41 @@ import { Router } from "express";
 import {
   kpisSucursalById,
   kpisTodas,
-  seriesComparativa
+  seriesComparativa,
 } from "../services/finances.service.js";
 import { pool } from "../services/db.js";
+import { requireAuth } from "../middleware/auth.middleware.js";
 
 const router = Router();
+
+// Todas las rutas de finances requieren token válido
+router.use(requireAuth);
+
+function isValidDate(d) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(d) && !isNaN(Date.parse(d));
+}
+
+function validateDates(req, res) {
+  const { from, to } = req.query;
+  if (!from || !to) {
+    res.status(400).json({ error: "Parámetros 'from' y 'to' requeridos" });
+    return false;
+  }
+  if (!isValidDate(from) || !isValidDate(to)) {
+    res.status(400).json({ error: "Formato de fecha inválido (usar YYYY-MM-DD)" });
+    return false;
+  }
+  return true;
+}
 
 /* ──────────────────────────────────────────────
    📊 KPI POR SUCURSAL (Resumen individual)
    ────────────────────────────────────────────── */
 router.get("/:id/summary", async (req, res) => {
+  if (!validateDates(req, res)) return;
   try {
     const { from, to } = req.query;
     const id = Number(req.params.id);
-
-    if (!from || !to)
-      return res.status(400).json({ error: "Parámetros 'from' y 'to' requeridos" });
     if (![1, 2].includes(id))
       return res.status(400).json({ error: "ID de sucursal inválido (1 o 2)" });
 
@@ -30,15 +49,13 @@ router.get("/:id/summary", async (req, res) => {
 });
 
 /* ──────────────────────────────────────────────
-   📈 SERIES POR SUCURSAL (compatibilidad con el front)
+   📈 SERIES POR SUCURSAL
    ────────────────────────────────────────────── */
 router.get("/:id/series", async (req, res) => {
+  if (!validateDates(req, res)) return;
   try {
     const { id } = req.params;
     const { from, to } = req.query;
-
-    if (!from || !to)
-      return res.status(400).json({ error: "Parámetros 'from' y 'to' requeridos" });
     if (![1, 2].includes(Number(id)))
       return res.status(400).json({ error: "ID de sucursal inválido (1 o 2)" });
 
@@ -51,7 +68,6 @@ router.get("/:id/series", async (req, res) => {
       GROUP BY DATE(FechaVenta)
       ORDER BY dia;
     `;
-
     const [rows] = await pool.query(Q_SERIES, [id, from, to]);
     res.json({ sucursalId: id, ingresos: rows });
   } catch (err) {
@@ -64,11 +80,9 @@ router.get("/:id/series", async (req, res) => {
    🧮 KPI GENERAL (Centro + Tafí Viejo)
    ────────────────────────────────────────────── */
 router.get("/summary", async (req, res) => {
+  if (!validateDates(req, res)) return;
   try {
     const { from, to } = req.query;
-    if (!from || !to)
-      return res.status(400).json({ error: "Parámetros 'from' y 'to' requeridos" });
-
     const data = await kpisTodas({ from, to });
     res.json(data);
   } catch (err) {
@@ -81,11 +95,9 @@ router.get("/summary", async (req, res) => {
    📊 SERIES COMPARATIVAS (ambas sucursales)
    ────────────────────────────────────────────── */
 router.get("/series", async (req, res) => {
+  if (!validateDates(req, res)) return;
   try {
     const { from, to } = req.query;
-    if (!from || !to)
-      return res.status(400).json({ error: "Parámetros 'from' y 'to' requeridos" });
-
     const data = await seriesComparativa({ from, to });
     res.json(data);
   } catch (err) {

@@ -1,0 +1,14 @@
+# Variables de entorno (nunca subir al repositorio)
+Backend/.env
+Valentina´s/.env
+
+# Dependencias
+**/node_modules/
+
+# Builds
+**/dist/
+**/.vite/
+
+# Logs
+**/*.log
+**/npm-debug.log*
