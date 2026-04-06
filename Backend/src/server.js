@@ -15,7 +15,7 @@ if (!process.env.JWT_SECRET) {
 }
 
 const app = express();
-
+app.set ("trust proxy", 1);
 app.use(cors({
   origin: process.env.ALLOWED_ORIGIN || "http://localhost:5173",
 }));
@@ -42,6 +42,8 @@ try {
 }
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`🚀 API escuchando en puerto ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 API escuchando en puerto ${PORT}`);
+});
 
 export default app;
