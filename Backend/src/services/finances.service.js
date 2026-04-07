@@ -44,8 +44,8 @@ export async function ventasSeries({ from, to }) {
     pool.query(Q, [2, from, to]),
   ]);
   const mapSerie = (rows) => rows.map((r) => ({ dia: r.dia, ingresos: Number(r.ventas || 0) }));
-  const centro     = mapSerie(rowsCentro);
-  const tafi_viejo = mapSerie(rowsTafi);
+  const centro     = { ingresos: mapSerie(rowsCentro), egresos: [] };
+  const tafi_viejo = { ingresos: mapSerie(rowsTafi),   egresos: [] };
   return { centro, tafi_viejo, sucursal1: centro, sucursal2: tafi_viejo };
 }
 
