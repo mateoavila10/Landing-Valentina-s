@@ -113,6 +113,9 @@ export default function Dashboard() {
   useEffect(() => { load(); }, [from, to]);
   useEffect(() => { loadSales(); }, [salesFrom, salesTo]);
 
+  const salesTotalPages = salesDetails ? Math.ceil(salesDetails.length / SALES_PAGE_SIZE) : 0;
+  const salesPageRows   = salesDetails ? salesDetails.slice((salesPage - 1) * SALES_PAGE_SIZE, salesPage * SALES_PAGE_SIZE) : [];
+
   const rangoLabel = `${dayjs(from).format("DD/MM/YYYY")} — ${dayjs(to).format("DD/MM/YYYY")}`;
 
   return (
@@ -294,51 +297,46 @@ export default function Dashboard() {
           {/* Tabla de detalle */}
           {salesLoading && !salesDetails ? (
             <div className="skeleton skeleton-chart" style={{ marginTop: "1.25rem" }} />
-          ) : salesDetails?.length > 0 ? (() => {
-            const totalPages = Math.ceil(salesDetails.length / SALES_PAGE_SIZE);
-            const pageRows   = salesDetails.slice((salesPage - 1) * SALES_PAGE_SIZE, salesPage * SALES_PAGE_SIZE);
-            return (
-              <>
-                <div className="sales-table-wrapper">
-                  <table className="sales-table">
-                    <thead>
-                      <tr>
-                        <th>Fecha</th>
-                        <th>Sucursal</th>
-                        <th>Producto</th>
-                        <th>Talle</th>
-                        <th>Cant.</th>
-                        <th>Precio unit.</th>
-                        <th>Subtotal</th>
-                        <th>Método</th>
-                        <th>Vendedor</th>
+          ) : salesDetails?.length > 0 ? (
+            <>
+              <div className="sales-table-wrapper">
+                <table className="sales-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Sucursal</th>
+                      <th>Producto</th>
+                      <th>Talle</th>
+                      <th>Cant.</th>
+                      <th>Precio unit.</th>
+                      <th>Subtotal</th>
+                      <th>Método</th>
+                      <th>Vendedor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {salesPageRows.map((row) => (
+                      <tr key={row.IdDetalle}>
+                        <td>{dayjs(row.FechaVenta).format("DD/MM/YY HH:mm")}</td>
+                        <td><span className={`sales-badge sales-badge--${row.id_sucursal === 1 ? "centro" : "tafi"}`}>{row.sucursal}</span></td>
+                        <td>{row.producto || "—"}</td>
+                        <td>{row.Talle ?? "—"}</td>
+                        <td>{row.Cantidad}</td>
+                        <td>{Number(row.PrecioVidriera).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</td>
+                        <td className="sales-subtotal">{Number(row.SubTotal).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</td>
+                        <td>{row.MetodoPago || "—"}</td>
+                        <td>{row.empleado || "—"}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {pageRows.map((row) => (
-                        <tr key={row.IdDetalle}>
-                          <td>{dayjs(row.FechaVenta).format("DD/MM/YY HH:mm")}</td>
-                          <td><span className={`sales-badge sales-badge--${row.id_sucursal === 1 ? "centro" : "tafi"}`}>{row.sucursal}</span></td>
-                          <td>{row.producto || "—"}</td>
-                          <td>{row.Talle ?? "—"}</td>
-                          <td>{row.Cantidad}</td>
-                          <td>{Number(row.PrecioVidriera).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</td>
-                          <td className="sales-subtotal">{Number(row.SubTotal).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</td>
-                          <td>{row.MetodoPago || "—"}</td>
-                          <td>{row.empleado || "—"}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="sales-pagination">
-                  <button onClick={() => setSalesPage((p) => Math.max(1, p - 1))} disabled={salesPage === 1}>&#8249;</button>
-                  <span>Página {salesPage} de {totalPages} · {salesDetails.length} registros</span>
-                  <button onClick={() => setSalesPage((p) => Math.min(totalPages, p + 1))} disabled={salesPage === totalPages}>&#8250;</button>
-                </div>
-              </>
-            );
-          })()
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="sales-pagination">
+                <button onClick={() => setSalesPage((p) => Math.max(1, p - 1))} disabled={salesPage === 1}>&#8249;</button>
+                <span>Página {salesPage} de {salesTotalPages} · {salesDetails.length} registros</span>
+                <button onClick={() => setSalesPage((p) => Math.min(salesTotalPages, p + 1))} disabled={salesPage === salesTotalPages}>&#8250;</button>
+              </div>
+            </>
           ) : salesDetails?.length === 0 ? (
             <p className="metric-subtitle" style={{ marginTop: "1rem" }}>Sin ventas para el período seleccionado.</p>
           ) : null}
