@@ -3,8 +3,8 @@ import {
   kpisSucursalById,
   kpisTodas,
   seriesComparativa,
-  ventasSummary,
-  ventasSeries,
+  detalleVentasSummary,
+  detalleVentasLista,
 } from "../services/finances.service.js";
 import { pool } from "../services/db.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
@@ -32,13 +32,13 @@ function validateDates(req, res) {
 }
 
 /* ──────────────────────────────────────────────
-   🛒 VENTAS - Resumen (ambas sucursales)
+   🛒 DETALLE VENTAS - Resumen (ambas sucursales)
    ────────────────────────────────────────────── */
 router.get("/sales/summary", async (req, res) => {
   if (!validateDates(req, res)) return;
   try {
     const { from, to } = req.query;
-    const data = await ventasSummary({ from, to });
+    const data = await detalleVentasSummary({ from, to });
     res.json(data);
   } catch (err) {
     console.error("❌ Error en /sales/summary:", err.message);
@@ -47,17 +47,17 @@ router.get("/sales/summary", async (req, res) => {
 });
 
 /* ──────────────────────────────────────────────
-   🛒 VENTAS - Series diarias (ambas sucursales)
+   🛒 DETALLE VENTAS - Listado de líneas
    ────────────────────────────────────────────── */
-router.get("/sales/series", async (req, res) => {
+router.get("/sales/details", async (req, res) => {
   if (!validateDates(req, res)) return;
   try {
     const { from, to } = req.query;
-    const data = await ventasSeries({ from, to });
+    const data = await detalleVentasLista({ from, to });
     res.json(data);
   } catch (err) {
-    console.error("❌ Error en /sales/series:", err.message);
-    res.status(500).json({ error: "Error al obtener series de ventas" });
+    console.error("❌ Error en /sales/details:", err.message);
+    res.status(500).json({ error: "Error al obtener detalle de ventas" });
   }
 });
 

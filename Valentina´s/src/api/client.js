@@ -71,16 +71,16 @@ export async function getSeries(from, to) {
 }
 
 /* ──────────────────────────────────────────────
-   🛒 Ventas — resumen y series
+   🛒 Detalle Ventas — resumen y listado
    ────────────────────────────────────────────── */
 export async function getSalesSummary(from, to) {
   const qs = new URLSearchParams({ from, to }).toString();
   return apiFetch(`${API_BASE}/api/finances/sales/summary?${qs}`);
 }
 
-export async function getSalesSeries(from, to) {
+export async function getSalesDetails(from, to) {
   const qs = new URLSearchParams({ from, to }).toString();
-  return apiFetch(`${API_BASE}/api/finances/sales/series?${qs}`);
+  return apiFetch(`${API_BASE}/api/finances/sales/details?${qs}`);
 }
 
 /* ──────────────────────────────────────────────

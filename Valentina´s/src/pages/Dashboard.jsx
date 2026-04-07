@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getSummary, getSeries, getSalesSummary, getSalesSeries } from "../api/client";
+import { getSummary, getSeries, getSalesSummary, getSalesDetails } from "../api/client";
 import BalanceCards from "../components/BalanceCards.jsx";
 import LineChartSerie from "../components/LineChartSerie";
 import Navbar from "../components/Navbar";
@@ -66,10 +66,9 @@ export default function Dashboard() {
   const [salesFrom, setSalesFrom] = useState(dayjs().format("YYYY-MM-DD"));
   const [salesTo, setSalesTo]   = useState(dayjs().format("YYYY-MM-DD"));
   const [salesSummary, setSalesSummary] = useState(null);
-  const [salesSeries, setSalesSeries]   = useState(null);
+  const [salesDetails, setSalesDetails] = useState(null);
   const [salesLoading, setSalesLoading] = useState(false);
   const [salesErr, setSalesErr]         = useState("");
-  const [salesChartType, setSalesChartType] = useState("bar");
 
   function handleSalesPreset(key) {
     setSalesPreset(key);
@@ -98,9 +97,9 @@ export default function Dashboard() {
     setSalesLoading(true);
     setSalesErr("");
     try {
-      const [sum, ser] = await Promise.all([getSalesSummary(salesFrom, salesTo), getSalesSeries(salesFrom, salesTo)]);
+      const [sum, details] = await Promise.all([getSalesSummary(salesFrom, salesTo), getSalesDetails(salesFrom, salesTo)]);
       setSalesSummary(sum);
-      setSalesSeries(ser);
+      setSalesDetails(details);
     } catch (e) {
       setSalesErr(e.message || "Error cargando ventas");
     } finally {
@@ -221,22 +220,6 @@ export default function Dashboard() {
         <section className="stats-section">
           <div className="stats-header">
             <h2>Ventas por sucursal</h2>
-            <div className="charttype-toggle">
-              <button
-                type="button"
-                className={salesChartType === "bar" ? "active" : ""}
-                onClick={() => setSalesChartType("bar")}
-              >
-                Barras
-              </button>
-              <button
-                type="button"
-                className={salesChartType === "line" ? "active" : ""}
-                onClick={() => setSalesChartType("line")}
-              >
-                Líneas
-              </button>
-            </div>
           </div>
 
           {/* Presets de fecha */}
@@ -280,23 +263,23 @@ export default function Dashboard() {
 
           {salesErr && <div className="error-box">{salesErr}</div>}
 
-          {/* Cards de ventas */}
+          {/* Cards resumen */}
           {salesSummary ? (
             <div className="kpi-grid sales-kpi-grid">
               <KPICard
-                title={`Ventas · ${salesSummary.centro.nombre}`}
-                value={salesSummary.centro.ventas}
-                subtitle="Total del período"
+                title={`Items vendidos · ${salesSummary.centro.nombre}`}
+                value={salesSummary.centro.subtotal}
+                subtitle={`${salesSummary.centro.items} artículos`}
               />
               <KPICard
-                title={`Ventas · ${salesSummary.tafi_viejo.nombre}`}
-                value={salesSummary.tafi_viejo.ventas}
-                subtitle="Total del período"
+                title={`Items vendidos · ${salesSummary.tafi_viejo.nombre}`}
+                value={salesSummary.tafi_viejo.subtotal}
+                subtitle={`${salesSummary.tafi_viejo.items} artículos`}
               />
               <KPICard
-                title="Ventas · Total"
-                value={salesSummary.total.ventas}
-                subtitle="Ambas sucursales"
+                title="Total · Ambas sucursales"
+                value={salesSummary.total.subtotal}
+                subtitle={`${salesSummary.total.items} artículos`}
               />
             </div>
           ) : salesLoading ? (
@@ -305,20 +288,44 @@ export default function Dashboard() {
             </div>
           ) : null}
 
-          {/* Gráfico de ventas diarias */}
-          {salesSeries ? (
-            <>
-              <p className="metric-subtitle" style={{ marginTop: "1.25rem" }}>
-                Ventas diarias · {dayjs(salesFrom).format("DD/MM/YYYY")} — {dayjs(salesTo).format("DD/MM/YYYY")}
-              </p>
-              <LineChartSerie
-                dataByShop={salesSeries}
-                metric="ingresos"
-                chartType={salesChartType}
-              />
-            </>
-          ) : salesLoading ? (
-            <div className="skeleton skeleton-chart" style={{ marginTop: "1rem" }} />
+          {/* Tabla de detalle */}
+          {salesLoading && !salesDetails ? (
+            <div className="skeleton skeleton-chart" style={{ marginTop: "1.25rem" }} />
+          ) : salesDetails?.length > 0 ? (
+            <div className="sales-table-wrapper">
+              <table className="sales-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Sucursal</th>
+                    <th>Producto</th>
+                    <th>Talle</th>
+                    <th>Cant.</th>
+                    <th>Precio unit.</th>
+                    <th>Subtotal</th>
+                    <th>Método</th>
+                    <th>Vendedor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {salesDetails.map((row) => (
+                    <tr key={row.IdDetalle}>
+                      <td>{dayjs(row.FechaVenta).format("DD/MM/YY HH:mm")}</td>
+                      <td><span className={`sales-badge sales-badge--${row.id_sucursal === 1 ? "centro" : "tafi"}`}>{row.sucursal}</span></td>
+                      <td>{row.producto || "—"}</td>
+                      <td>{row.Talle ?? "—"}</td>
+                      <td>{row.Cantidad}</td>
+                      <td>{Number(row.PrecioVidriera).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</td>
+                      <td className="sales-subtotal">{Number(row.SubTotal).toLocaleString("es-AR", { style: "currency", currency: "ARS" })}</td>
+                      <td>{row.MetodoPago || "—"}</td>
+                      <td>{row.empleado || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : salesDetails?.length === 0 ? (
+            <p className="metric-subtitle" style={{ marginTop: "1rem" }}>Sin ventas para el período seleccionado.</p>
           ) : null}
         </section>
       </div>

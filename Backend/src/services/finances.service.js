@@ -1,52 +1,66 @@
 import { pool } from "./db.js";
 
 /* ──────────────────────────────────────────────
-   🛒 VENTAS - Resumen por sucursal
+   🛒 DETALLE VENTAS - Resumen por sucursal
    ────────────────────────────────────────────── */
-export async function ventasSummary({ from, to }) {
+export async function detalleVentasSummary({ from, to }) {
   const Q = `
-    SELECT COALESCE(SUM(Total), 0) AS total
-    FROM ventas
-    WHERE id_sucursal = ?
-      AND FechaVenta >= ?
-      AND FechaVenta < DATE_ADD(?, INTERVAL 1 DAY)
-      AND IsDeleted = 0
+    SELECT
+      v.id_sucursal,
+      COUNT(dv.IdDetalle)          AS items,
+      COALESCE(SUM(dv.SubTotal), 0) AS subtotal
+    FROM detalleventa dv
+    JOIN ventas v ON dv.IdVenta = v.IdVenta
+    WHERE v.FechaVenta >= ?
+      AND v.FechaVenta < DATE_ADD(?, INTERVAL 1 DAY)
+      AND dv.IsDeleted = 0
+      AND v.IsDeleted  = 0
+    GROUP BY v.id_sucursal
   `;
-  const [[rowsCentro], [rowsTafi]] = await Promise.all([
-    pool.query(Q, [1, from, to]),
-    pool.query(Q, [2, from, to]),
-  ]);
-  const centro = Number(rowsCentro[0]?.total || 0);
-  const tafi   = Number(rowsTafi[0]?.total || 0);
+  const [rows] = await pool.query(Q, [from, to]);
+
+  const centro = rows.find((r) => r.id_sucursal === 1) || { items: 0, subtotal: 0 };
+  const tafi   = rows.find((r) => r.id_sucursal === 2) || { items: 0, subtotal: 0 };
+
   return {
-    centro:     { nombre: "Centro",     ventas: centro },
-    tafi_viejo: { nombre: "Tafí Viejo", ventas: tafi },
-    total:      { ventas: centro + tafi },
+    centro:     { nombre: "Centro",     items: Number(centro.items),   subtotal: Number(centro.subtotal) },
+    tafi_viejo: { nombre: "Tafí Viejo", items: Number(tafi.items),     subtotal: Number(tafi.subtotal)   },
+    total:      { items: Number(centro.items) + Number(tafi.items), subtotal: Number(centro.subtotal) + Number(tafi.subtotal) },
   };
 }
 
 /* ──────────────────────────────────────────────
-   🛒 VENTAS - Series diarias por sucursal
+   🛒 DETALLE VENTAS - Listado de líneas
    ────────────────────────────────────────────── */
-export async function ventasSeries({ from, to }) {
+export async function detalleVentasLista({ from, to }) {
   const Q = `
-    SELECT DATE(FechaVenta) AS dia, COALESCE(SUM(Total), 0) AS ventas
-    FROM ventas
-    WHERE id_sucursal = ?
-      AND FechaVenta >= ?
-      AND FechaVenta < DATE_ADD(?, INTERVAL 1 DAY)
-      AND IsDeleted = 0
-    GROUP BY DATE(FechaVenta)
-    ORDER BY dia;
+    SELECT
+      dv.IdDetalle,
+      CONCAT_WS(' ', p.articulo_local, p.articulo_marca, p.modelo) AS producto,
+      dv.Talle,
+      dv.Cantidad,
+      dv.PrecioVidriera,
+      dv.SubTotal,
+      v.FechaVenta,
+      CONCAT_WS(' ', e.NombreCompleto, e.Apellido)                 AS empleado,
+      v.MetodoPago,
+      v.id_sucursal
+    FROM detalleventa dv
+    JOIN  ventas    v ON dv.IdVenta   = v.IdVenta
+    LEFT JOIN productos p ON dv.IdProducto = p.id_producto
+    LEFT JOIN empleados e ON v.IdEmpleado  = e.IdEmpleado
+    WHERE v.FechaVenta >= ?
+      AND v.FechaVenta < DATE_ADD(?, INTERVAL 1 DAY)
+      AND dv.IsDeleted = 0
+      AND v.IsDeleted  = 0
+    ORDER BY v.FechaVenta DESC
+    LIMIT 500
   `;
-  const [[rowsCentro], [rowsTafi]] = await Promise.all([
-    pool.query(Q, [1, from, to]),
-    pool.query(Q, [2, from, to]),
-  ]);
-  const mapSerie = (rows) => rows.map((r) => ({ dia: r.dia, ingresos: Number(r.ventas || 0) }));
-  const centro     = { ingresos: mapSerie(rowsCentro), egresos: [] };
-  const tafi_viejo = { ingresos: mapSerie(rowsTafi),   egresos: [] };
-  return { centro, tafi_viejo, sucursal1: centro, sucursal2: tafi_viejo };
+  const [rows] = await pool.query(Q, [from, to]);
+  return rows.map((r) => ({
+    ...r,
+    sucursal: r.id_sucursal === 1 ? "Centro" : "Tafí Viejo",
+  }));
 }
 
 /* ──────────────────────────────────────────────
