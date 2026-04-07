@@ -1,6 +1,55 @@
 import { pool } from "./db.js";
 
 /* ──────────────────────────────────────────────
+   🛒 VENTAS - Resumen por sucursal
+   ────────────────────────────────────────────── */
+export async function ventasSummary({ from, to }) {
+  const Q = `
+    SELECT COALESCE(SUM(Total), 0) AS total
+    FROM ventas
+    WHERE id_sucursal = ?
+      AND FechaVenta >= ?
+      AND FechaVenta < DATE_ADD(?, INTERVAL 1 DAY)
+      AND IsDeleted = 0
+  `;
+  const [[rowsCentro], [rowsTafi]] = await Promise.all([
+    pool.query(Q, [1, from, to]),
+    pool.query(Q, [2, from, to]),
+  ]);
+  const centro = Number(rowsCentro[0]?.total || 0);
+  const tafi   = Number(rowsTafi[0]?.total || 0);
+  return {
+    centro:     { nombre: "Centro",     ventas: centro },
+    tafi_viejo: { nombre: "Tafí Viejo", ventas: tafi },
+    total:      { ventas: centro + tafi },
+  };
+}
+
+/* ──────────────────────────────────────────────
+   🛒 VENTAS - Series diarias por sucursal
+   ────────────────────────────────────────────── */
+export async function ventasSeries({ from, to }) {
+  const Q = `
+    SELECT DATE(FechaVenta) AS dia, COALESCE(SUM(Total), 0) AS ventas
+    FROM ventas
+    WHERE id_sucursal = ?
+      AND FechaVenta >= ?
+      AND FechaVenta < DATE_ADD(?, INTERVAL 1 DAY)
+      AND IsDeleted = 0
+    GROUP BY DATE(FechaVenta)
+    ORDER BY dia;
+  `;
+  const [[rowsCentro], [rowsTafi]] = await Promise.all([
+    pool.query(Q, [1, from, to]),
+    pool.query(Q, [2, from, to]),
+  ]);
+  const mapSerie = (rows) => rows.map((r) => ({ dia: r.dia, ingresos: Number(r.ventas || 0) }));
+  const centro     = mapSerie(rowsCentro);
+  const tafi_viejo = mapSerie(rowsTafi);
+  return { centro, tafi_viejo, sucursal1: centro, sucursal2: tafi_viejo };
+}
+
+/* ──────────────────────────────────────────────
    📊 TABLAS
    - ventas(IdVenta, FechaVenta, Total, id_sucursal)
    - gastos(IdGasto, MontoGasto, FechaGasto, id_sucursal)

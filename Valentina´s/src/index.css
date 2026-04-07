@@ -460,6 +460,118 @@ h2 {
   margin-top: 0.75rem;
 }
 
+/* ---------- SECTION DIVIDER ---------- */
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 2.5rem 0 1.5rem;
+  color: var(--text-light);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ---------- SALES FILTERS ---------- */
+
+.sales-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.date-presets {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.15rem;
+  background: #e5e7eb;
+  gap: 0;
+  width: fit-content;
+}
+
+.date-presets button {
+  border: none;
+  background: transparent;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.date-presets button.active {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.sales-custom-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.sales-custom-dates label {
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.sales-custom-dates input[type="date"] {
+  margin-left: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  background: #fff;
+  transition: var(--transition);
+}
+
+.sales-custom-dates input[type="date"]:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.sales-custom-dates button {
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.sales-custom-dates button:hover {
+  background-color: var(--secondary);
+}
+
+.sales-custom-dates button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sales-kpi-grid {
+  margin-bottom: 0;
+}
+
 /* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 600px) {
@@ -470,6 +582,23 @@ h2 {
 
   .navbar-name {
     display: none;
+  }
+
+  .date-presets {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .date-presets button {
+    flex: 1;
+    text-align: center;
+    padding: 0.35rem 0.4rem;
+    font-size: 0.78rem;
+  }
+
+  .sales-custom-dates {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 

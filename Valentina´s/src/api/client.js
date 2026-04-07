@@ -71,6 +71,19 @@ export async function getSeries(from, to) {
 }
 
 /* ──────────────────────────────────────────────
+   🛒 Ventas — resumen y series
+   ────────────────────────────────────────────── */
+export async function getSalesSummary(from, to) {
+  const qs = new URLSearchParams({ from, to }).toString();
+  return apiFetch(`${API_BASE}/api/finances/sales/summary?${qs}`);
+}
+
+export async function getSalesSeries(from, to) {
+  const qs = new URLSearchParams({ from, to }).toString();
+  return apiFetch(`${API_BASE}/api/finances/sales/series?${qs}`);
+}
+
+/* ──────────────────────────────────────────────
    📌 Por sucursal individual (uso opcional)
    ────────────────────────────────────────────── */
 export async function fetchSucursalSummary(id, { from, to }) {

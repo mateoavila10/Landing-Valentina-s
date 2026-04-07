@@ -3,6 +3,8 @@ import {
   kpisSucursalById,
   kpisTodas,
   seriesComparativa,
+  ventasSummary,
+  ventasSeries,
 } from "../services/finances.service.js";
 import { pool } from "../services/db.js";
 import { requireAuth } from "../middleware/auth.middleware.js";
@@ -28,6 +30,36 @@ function validateDates(req, res) {
   }
   return true;
 }
+
+/* ──────────────────────────────────────────────
+   🛒 VENTAS - Resumen (ambas sucursales)
+   ────────────────────────────────────────────── */
+router.get("/sales/summary", async (req, res) => {
+  if (!validateDates(req, res)) return;
+  try {
+    const { from, to } = req.query;
+    const data = await ventasSummary({ from, to });
+    res.json(data);
+  } catch (err) {
+    console.error("❌ Error en /sales/summary:", err.message);
+    res.status(500).json({ error: "Error al obtener resumen de ventas" });
+  }
+});
+
+/* ──────────────────────────────────────────────
+   🛒 VENTAS - Series diarias (ambas sucursales)
+   ────────────────────────────────────────────── */
+router.get("/sales/series", async (req, res) => {
+  if (!validateDates(req, res)) return;
+  try {
+    const { from, to } = req.query;
+    const data = await ventasSeries({ from, to });
+    res.json(data);
+  } catch (err) {
+    console.error("❌ Error en /sales/series:", err.message);
+    res.status(500).json({ error: "Error al obtener series de ventas" });
+  }
+});
 
 /* ──────────────────────────────────────────────
    📊 KPI POR SUCURSAL (Resumen individual)
